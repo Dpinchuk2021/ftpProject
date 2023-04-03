@@ -143,22 +143,25 @@ int main(int argc, char *argv[] )
 	 */
 	do
 	{
+	    printf("break1\n");
 	    /* Receive client ftp commands until */
+	    printf("break2\n");	
  	    status=receiveMessage(ccSocket, userCmd, sizeof(userCmd), &msgSize);
 	    if(status < 0)
 	    {
+		printf("break3\n");	
 		printf("Receive message failed. Closing control connection \n");
 		printf("Server ftp is terminating.\n");
 		break;
 	    }
 	    
+	    printf("break4\n");
 	    /* Debugging Purposes */
 	    int bytesSent;
     	    char replyMsg[] = "Message received.\n";
-            bytesSent = send(ccSocket, replyMsg, strlen(replyMsg), 0); /* Send the reply message to the client. */
+          bytesSent = send(ccSocket, replyMsg, strlen(replyMsg), 0); /* Send the reply message to the client. */
     	    printf("Sent reply: %s", replyMsg);
-            printf("bytesSent: %d\n", bytesSent);
-
+          printf("bytesSent: %d\n", bytesSent);
 
 /*
  * Starting Homework#2 program to process all ftp commands must be added here.
@@ -581,15 +584,17 @@ int main(int argc, char *argv[] )
 	    /*
  	     * ftp server sends only one reply message to the client for 
 	     * each command received in this implementation.
-	     */
+	     */    
+
 	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
 				/* the reply string strlen does not count NULL character */
 	    if(status < 0)
-	    {
+	    {	
 		break;  /* exit while loop */
 	    }
-	}
-	while(strcmp(cmd, "quit") != 0);
+	}	
+	while(strncmp(cmd, "quit", 4)!=0);
+	/* while(strcmp(cmd, "quit") != 0); */
 	
 	printf("Closing data connection socket.\n");
 	close (dcSocket);  /* Close server data connection socket */
