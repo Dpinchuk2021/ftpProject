@@ -155,9 +155,9 @@ int main(int argc, char *argv[] )
 	    /* Debugging Purposes */
 	    int bytesSent;
     	    char replyMsg[] = "Message received.\n";
-          bytesSent = send(ccSocket, replyMsg, strlen(replyMsg), 0); /* Send the reply message to the client. */
+            bytesSent = send(ccSocket, replyMsg, strlen(replyMsg), 0); /* Send the reply message to the client. */
     	    printf("Sent reply: %s", replyMsg);
-          printf("bytesSent: %d\n", bytesSent);
+            printf("bytesSent: %d\n", bytesSent);
 
 
 /*
