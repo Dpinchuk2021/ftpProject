@@ -93,8 +93,8 @@ int main(int argc, char *argv[] )
 	int dcSocket;       /* Data connection socket - to be used in all server communication */
 	int status;
 
-	char *userList[]  = {"Dennis", "Eric", "Steven", "Mike"}; /* The list of valid user names */
-	char *passList[]  = {"JackSparrow", "isSunny46", "graygoose", "bluelabel45"};            /* The list of passwords associated with the index of userList */
+	char *userList[4]  = {"Dennis", "Eric", "Steven", "Mike"}; /* The list of valid user names */
+	char *passList[4]  = {"JackSparrow", "isSunny46", "graygoose", "bluelabel45"};            /* The list of passwords associated with the index of userList */
 	int  isLoggedIn   = -1;                              /* -1 (default), 0 if the User is not logged in, 1 otherwise. */
 	int  userIndex    = -1;                              /* The index of userList that identifies the current user. See Login Codes. */
 
@@ -143,19 +143,19 @@ int main(int argc, char *argv[] )
 	 */
 	do
 	{
-	    printf("break1\n");
+	    /* printf("break1\n"); */
 	    /* Receive client ftp commands until */
-	    printf("break2\n");	
+	    /* printf("break2\n");*/	
  	    status=receiveMessage(ccSocket, userCmd, sizeof(userCmd), &msgSize);
 	    if(status < 0)
 	    {
-		printf("break3\n");	
+		/* printf("break3\n"); */	
 		printf("Receive message failed. Closing control connection \n");
 		printf("Server ftp is terminating.\n");
 		break;
 	    }
 	    
-	    printf("break4\n");
+	    /* printf("break4\n"); */	
 	    /* Debugging Purposes */
 	    int bytesSent;
     	    char replyMsg[] = "Message received.\n";
@@ -172,6 +172,8 @@ int main(int argc, char *argv[] )
 
 	    char *cmd = NULL;
 	    char *argument = NULL;
+
+	    printf("break1\n"); /* debugging again */
 
 	    printf("Message received. status: %d.\n", status); /* The client is informed that their message has been received by the program. */
 
@@ -211,7 +213,8 @@ int main(int argc, char *argv[] )
         			userIndex = -1;
     			}else {
         			int i = 0;
-        			int numUsers = sizeof(userList) / sizeof(*userList);
+				int numUsers = 4;
+        			/* int numUsers = sizeof(userList) / sizeof(*userList); */
         			for(; i < numUsers; i++) {
             			if(strcmp(userList[i], argument) == 0) {
                 			userIndex = i;
