@@ -145,7 +145,7 @@ int main(int argc, char *argv[] )
 	{
 	    /* Allocation of memory for commands and arguements. */
 	    char *cmd = (char *)malloc(256 * sizeof(char));
-    	    char *argument = (char *)malloc(256 * sizeof(char));
+    	char *argument = (char *)malloc(256 * sizeof(char));
 
 	    memset(cmd, 0, 256 * sizeof(char));
 	    memset(argument, 0, 256 * sizeof(char));
@@ -216,7 +216,7 @@ int main(int argc, char *argv[] )
 	    /* Establish the user command if the user is authenticated/authorized*/   
 
 	    if(strcmp(cmd, "help") == 0) {
-		strcpy(replyMsg, "214 user stat mkdir rmdir dele cd help ls pwd pass \n");
+		    strcpy(replyMsg, "214 user stat mkdir rmdir dele cd help ls pwd pass \n");
 		}
 		else if(strcmp(cmd, "user") == 0) {
     			isLoggedIn = NO_USER;
@@ -227,7 +227,7 @@ int main(int argc, char *argv[] )
         			userIndex = -1;
     			}else {
         			int i = 0;
-				int numUsers = 4;
+				    int numUsers = 4;
         			/* int numUsers = sizeof(userList) / sizeof(*userList); */
         			for(; i < numUsers; i++) {
             			if(strcmp(userList[i], argument) == 0) {
@@ -238,7 +238,7 @@ int main(int argc, char *argv[] )
             			}
         		}
         		if(userIndex < 0) {
-            	strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
+            	    strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
         		}
     		}
 	}
@@ -254,8 +254,18 @@ int main(int argc, char *argv[] )
 	    else if(strcmp(cmd, "pass") == 0){
 		printf("Processing pass command - empty argument.\n");
 
-		printf("cmd: %p\n", (void *)cmd);
-    		printf("argument: %p\n", (void *)argument);
+        printf("%i",strcmp(passList[1], argument));
+        printf("%i \n",(userIndex));
+        /* printf("%s \n",(userList[0])); */
+        printf("%s \n",(passList[0]));
+        printf("%d \n", argument == NULL);
+        printf("%d \n", argument[0] == '\0');
+        printf("%d \n", strcmp(argument, "") == 0);
+        printf("cmd: %p\n", (void *)cmd);
+        printf("argument: %s\n", argument);
+
+        printf("\n %i \n", isLoggedIn);
+        printf("\n %i \n", isLoggedIn);
 
 		/* The program will inform the user of a syntax error if they fail to provide a password or an "empty" password. */
 		if(argument == NULL || argument[0] == '\0' || strcmp(argument, "") == 0) {
@@ -289,6 +299,7 @@ int main(int argc, char *argv[] )
 				strcpy(cmd, "quit");
 				}
 			}
+            printf("break1");
 	    }
 
 	    /* Implmenting the stat command in the system */
