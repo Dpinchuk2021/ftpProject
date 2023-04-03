@@ -608,7 +608,7 @@ int main(int argc, char *argv[] )
 		break;  /* exit while loop */
 	    }
 	}	
-	while(strncmp(cmd, "quit", 4)!=0);
+	while(1);
 }
 
 
