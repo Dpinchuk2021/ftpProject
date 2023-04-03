@@ -574,12 +574,27 @@ int main(int argc, char *argv[] )
 		/* Send a response to the quit command. */
 		else if(strcmp(cmd, "quit") == 0){
 			strcpy(replyMsg, "221 Service closing data and control connections.\n");
+
+			printf("Closing data connection socket.\n");
+			close (dcSocket);  /* Close server data connection socket */
+
+			printf("Closing control connection socket.\n");
+			close (ccSocket);  /* Close client control connection socket */
+
+			printf("Closing listen socket.\n");
+			close(listenSocket);  /*close listen socket */
+
+			printf("Exiting from server ftp main. \n");
+
+			return (status);
 		}
 		
 		/* The input command is invalid and cannot be recognized. */
 		else{
 			strcpy(replyMsg, "502 Command not implemented. Use \"help\" for a list of valid commands.\n");
 		}
+	
+	
 		
 	    /*
  	     * ftp server sends only one reply message to the client for 
@@ -594,20 +609,6 @@ int main(int argc, char *argv[] )
 	    }
 	}	
 	while(strncmp(cmd, "quit", 4)!=0);
-	/* while(strcmp(cmd, "quit") != 0); */
-	
-	printf("Closing data connection socket.\n");
-	close (dcSocket);  /* Close server data connection socket */
-
-	printf("Closing control connection socket.\n");
-	close (ccSocket);  /* Close client control connection socket */
-
-	printf("Closing listen socket.\n");
-	close(listenSocket);  /*close listen socket */
-
-	printf("Exiting from server ftp main. \n");
-
-	return (status);
 }
 
 
@@ -836,5 +837,3 @@ int receiveMessage (
 
 	return (OK);
 }
-
-
