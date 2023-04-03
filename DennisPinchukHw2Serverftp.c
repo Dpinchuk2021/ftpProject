@@ -143,6 +143,13 @@ int main(int argc, char *argv[] )
 	 */
 	do
 	{
+	    /* Allocation of memory for commands and arguements. */
+	    char *cmd = (char *)malloc(256 * sizeof(char));
+    	    char *argument = (char *)malloc(256 * sizeof(char));
+
+	    memset(cmd, 0, 256 * sizeof(char));
+	    memset(argument, 0, 256 * sizeof(char));
+
 	    /* printf("break1\n"); */
 	    /* Receive client ftp commands until */
 	    /* printf("break2\n");*/	
@@ -170,10 +177,8 @@ int main(int argc, char *argv[] )
 
 	    /* Reinitialize the first element of the command and argument. */
 
-	    char *cmd = NULL;
-	    char *argument = NULL;
-
-	    printf("break1\n"); /* debugging again */
+	    /* char *cmd = NULL; */
+	    /* char *argument = NULL; */
 
 	    printf("Message received. status: %d.\n", status); /* The client is informed that their message has been received by the program. */
 
@@ -190,7 +195,16 @@ int main(int argc, char *argv[] )
 	    /* "Extract the command and argument from the 'userCmd' variable using strtok */
 	    strcpy(userCmdCopy, userCmd);
 	    cmd = strtok(userCmdCopy, " ");
+	    if (cmd == NULL) {
+    		printf("cmd is NULL after strtok.\n");
+    		continue;
+	    }
+
 	    argument = strtok(NULL, " ");
+	    if (argument == NULL) {
+    		printf("argument is NULL after strtok.\n");
+    		continue;
+	    }
 
 	    /* Output a message indicating that the server has received the command */
 
@@ -238,23 +252,31 @@ int main(int argc, char *argv[] )
 	    /* If no password is provided, the user will be notified of a syntax error */
 
 	    else if(strcmp(cmd, "pass") == 0){
+		printf("Processing pass command - empty argument.\n");
+
+		printf("cmd: %p\n", (void *)cmd);
+    		printf("argument: %p\n", (void *)argument);
+
 		/* The program will inform the user of a syntax error if they fail to provide a password or an "empty" password. */
-		if(argument[0] == NULL || strcmp(argument, "") == 0) {
+		if(argument == NULL || argument[0] == '\0' || strcmp(argument, "") == 0) {
 			strcpy(replyMsg, "501 Syntax error. Use: \"pass <password>\". \n");
 		}
 		/* If the user fails to send a valid user command, inform them that the command has failed. */
 		else if(isLoggedIn == NO_USER || userIndex < 0){
-				isLoggedIn = LOGGED_IN; 
-				strcpy(replyMsg, "503 Bad sequence of commands. Use \"user <username>\" first.\n");
+			printf("Processing pass command - no user or invalid userIndex.\n");
+			isLoggedIn = LOGGED_IN; 
+			strcpy(replyMsg, "503 Bad sequence of commands. Use \"user <username>\" first.\n");
 		}
 		/* If a user/password combination is matched successfully. It's sent to the isLoggedIn and will send a reply. */
 		else if(strcmp(passList[userIndex], argument) == 0) {
+			printf("Processing pass command - successful login.\n");
 			isLoggedIn = LOGGED_IN; /* indicating that a user has successfully logged into the server. */ 
 			strcpy(replyMsg, "230 User logged in, proceed.\n");
 		}
 
 		/* If the user provides an invalid command, error messages are displayed, but the 'userIndex' variable remains unchanged, and the 'isLoggedIn' variable is set to 'LOGGED_OUT' to ensure that the user is logged out of the server. */
 		else{
+			printf("Processing pass command - invalid command.\n");
 			isLoggedIn = LOGGED_OUT;
 			if(userIndex >= 0) {
 				strcpy(replyMsg, "530 Invalid password for ");
@@ -612,6 +634,8 @@ int main(int argc, char *argv[] )
 	    }
 	}	
 	while(1);
+	free(cmd);
+    	free(argument);
 }
 
 
