@@ -61,8 +61,6 @@ char fileData[1024];                                 /* A buffer for storing the
 #define LOGGED_OUT 0  /*Represents a value (0) for the status when a user is logged out */
 #define NO_USER -1    /*Represents a value (-1) for the status when there is no user associated with a particular action or session */
 
-
-
 /*
  * main
  *
@@ -175,7 +173,12 @@ int main(int argc, char *argv[] )
 	    /* Debugging Purposes */
 	    int bytesSent;
     	char replyMsg[] = "Message received.\n";
-        bytesSent = send(ccSocket, replyMsg, strlen(replyMsg), 0); /* Send the reply message to the client. */
+        status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+        if (status < 0) {
+            perror("Error sending message: ");
+            close(ccSocket);
+            break;
+        }
     	printf("Sent reply: %s", replyMsg);
         printf("bytesSent: %d\n", bytesSent);
 
@@ -465,6 +468,7 @@ int main(int argc, char *argv[] )
                         filePtr = fopen("./serverftp_temp", "r");
                         /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
                         if(filePtr == NULL){
+                            printf("replymessage: %s", replyMsg); /*Debugging*/
                             strcpy(replyMsg, "451 Unable to display directory contents (filePtr missing).\n");
                         }
                         /* Read the output file. */
@@ -479,10 +483,12 @@ int main(int argc, char *argv[] )
                                 if(bytesRead == 0){
                                     strcpy(fileData, "The current directory is empty.");
                                 }
+                                printf("replymessage1: %s", replyMsg);
                                 fileData[bytesRead] = NULL; /*NULL-terminate the file data */
                                 strcpy(replyMsg, "\n");
                                 strcat(replyMsg, fileData);
                                 strcat(replyMsg, "\n250 Requested file action okay, completed.\n");
+                                printf("replymessage2: %s", replyMsg);
                             }
                         }
                         /* Clean up */
@@ -677,6 +683,8 @@ int main(int argc, char *argv[] )
 	     * each command received in this implementation.
 	     */    
 
+        printf("replymessage3: %s", replyMsg);
+        /* printf("ccSocket value before calling sendMessage(): %d\n", ccSocket); For debugging*/
 	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
 				/* the reply string strlen does not count NULL character */
 	    if(status < 0)
@@ -858,6 +866,7 @@ int sendMessage(
 	)
 {
 	int i;
+    int ccSocket;
 
 
 	/* Print the message to be sent byte by byte as character */
@@ -867,7 +876,14 @@ int sendMessage(
 	}
 	printf("\n");
 
+    /* printf("Before sending message, ccSocket: %d\n", ccSocket); */
     printf("Sending message to socket: %d\n", s);
+    /* printf("After sending message, ccSocket: %d\n", ccSocket); */
+
+    if (s < 0) {
+        perror("Invalid socket file descriptor");
+        return (ER_SEND_FAILED);
+    }
 
     int bytesSent = send(s, msg, msgSize, 0);
     if (bytesSent < 0) {
@@ -883,7 +899,6 @@ int sendMessage(
 
 	return(OK); /* successful send */
 }
-
 
 /*
  * receiveMessage
@@ -929,5 +944,3 @@ int receiveMessage (
 
 	return (OK);
 }
-
-
