@@ -93,6 +93,8 @@ int main(int argc, char *argv[] )
 	int ccSocket;        /* Control connection socket - to be used in all client communication */
 	int dcSocket;       /* Data connection socket - to be used in all server communication */
 	int status;
+    ccSocket = -1;    /* ensure that cc socket are initially set to an invalid value. */
+    listenSocket = -1; /* ensure that listen socket are initially set to an invalid value. */
 
 	char *userList[4]  = {"Dennis", "Eric", "Steven", "Mike"}; /* The list of valid user names set to an array called userList */
 	char *passList[4]  = {"JackSparrow", "isSunny46", "graygoose", "bluelabel45"};            /* The list of passwords associated with the index of userList set to another array called passList */
@@ -124,6 +126,8 @@ int main(int argc, char *argv[] )
 
 	/* wait until connection request comes from client ftp */
 	ccSocket = accept(listenSocket, NULL, NULL);
+
+    printf("Accepted connection, ccSocket: %d\n", ccSocket); /*Debugging for ls*/
 
 	printf("Came out of accept() function \n"); /*Print a message indicating that the program has successfully returned from the accept() function*/
 
@@ -482,8 +486,8 @@ int main(int argc, char *argv[] )
                             }
                         }
                         /* Clean up */
-                        fclose(filePtr);
-                        system("rm ./serverftp_temp");
+                        /* fclose(filePtr);
+                        system("rm ./serverftp_temp"); */
                     }
                     /* Output file could not be created. Therefore, notify the user of failure */
                     else{
@@ -493,6 +497,18 @@ int main(int argc, char *argv[] )
                 else{
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
+
+                /* Add this line before the sendMessage call */
+                printf("Sending message to socket: %d\nMessage content: %s\n", ccSocket, replyMsg);
+
+                /* Send reply message */
+                sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+                    
+                /* Clean up */
+                if(filePtr != NULL) {
+                    fclose(filePtr);
+                }
+                system("rm ./serverftp_temp");
             }
             /* Allowing the dele command in the system */
             else if(strcmp(cmd, "dele") == 0){
@@ -524,7 +540,7 @@ int main(int argc, char *argv[] )
             
                 /* Attempt a data connection even in the presence of errors to avoid the client from continuously listening. */
                 printf("Calling clntConnect to connect to the client.\n");
-                status=clntConnect("192.168.200.230", &dcSocket);  /* Off-campus IP: "143.241.37.230" */
+                status=clntConnect("10.3.200.17", &dcSocket);  /* Off-campus IP: "134.241.37.12" */
                 if(status != 0){
                     /* Notify the client that the data connection has failed, close the data connection socket. */
                     strcpy(replyMsg, "425 'send' could not open data connection. Closing data connection socket.\n");
@@ -567,6 +583,14 @@ int main(int argc, char *argv[] )
                 }
                 printf("Data connection closed.\n");
                 close(dcSocket); /* Close the data connection socket regardless of any errors that may have occurred. */
+
+                /*For Debugging*/
+                status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+                if (status < 0) {
+                    perror("Error sending message: ");
+                    close(ccSocket);
+                    break; // break out of the while loop
+                }
             }
             
             /* Allowing the recv command in the system */
@@ -613,8 +637,15 @@ int main(int argc, char *argv[] )
                     }
                 }
                 close(dcSocket); /* Close the data connection regardless of whether there was an error or not. */
+                
+                /*For*/
+                status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+                if (status < 0) {
+                    perror("Error sending message: ");
+                    close(ccSocket);
+                    break; // break out of the while loop
+                }
             }
-            
         }
 		/* Send a response to the quit command. */
 		else if(strcmp(cmd, "quit") == 0){
@@ -676,8 +707,8 @@ int main(int argc, char *argv[] )
 int svcInitServer(int *s) {
 
 	int sock;
-    	struct sockaddr_in svcAddr;
-    	int qlen;
+    struct sockaddr_in svcAddr;
+    int qlen;
 
     /* Create a socket endpoint */
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -685,6 +716,12 @@ int svcInitServer(int *s) {
         return (ER_CREATE_SOCKET_FAILED);
     }
 
+    int opt = 1;
+    if (setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+        perror("setsockopt");
+        close(sock);
+        return (ER_CREATE_SOCKET_FAILED);
+    }
 
     /* Initialize memory of svcAddr structure to zero. */
     memset((char *)&svcAddr, 0, sizeof(svcAddr));
@@ -830,11 +867,19 @@ int sendMessage(
 	}
 	printf("\n");
 
-	if((send(s, msg, msgSize, 0)) < 0) /* socket interface call to transmit */
-	{
+    printf("Sending message to socket: %d\n", s);
+
+    int bytesSent = send(s, msg, msgSize, 0);
+    if (bytesSent < 0) {
+        perror("unable to send ");
+        return(ER_SEND_FAILED);
+    }
+
+	/* if((send(s, msg, msgSize, 0)) < 0) socket interface call to transmit */
+	/* {
 		perror("unable to send ");
 		return(ER_SEND_FAILED);
-	}
+	} */
 
 	return(OK); /* successful send */
 }
@@ -884,3 +929,5 @@ int receiveMessage (
 
 	return (OK);
 }
+
+
