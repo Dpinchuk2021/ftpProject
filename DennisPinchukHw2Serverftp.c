@@ -461,60 +461,47 @@ int main(int argc, char *argv[] )
                 }
             }
             /* Allowing the ls command in the system */
-            else if(strcmp(cmd, "ls") == 0){
+           else if(strcmp(cmd, "ls") == 0){
+                printf("Entered 'ls' command block.\n"); /* Testing */
                 if(isLoggedIn == LOGGED_IN){
-                    status = system("ls -m > ./serverftp_temp");
-                    if(status == 0){
-                        filePtr = fopen("./serverftp_temp", "r");
-                        /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
-                        if(filePtr == NULL){
-                            printf("replymessage: %s", replyMsg); /*Debugging*/
-                            strcpy(replyMsg, "451 Unable to display directory contents (filePtr missing).\n");
-                        }
-                        /* Read the output file. */
-                        else{
-                            bytesRead = fread(fileData, 1, 1024, filePtr);
-                            /* Unable to read file. Notify user of failure. */
-                            if(bytesRead < 0){
-                                strcpy(replyMsg, "451 Unable to display directory contents (read error).\n");
-                            }
-                            /* File read successful. Send user the server response. */
-                            else{
-                                if(bytesRead == 0){
-                                    strcpy(fileData, "The current directory is empty.");
-                                }
-                                printf("replymessage1: %s", replyMsg);
-                                fileData[bytesRead] = NULL; /*NULL-terminate the file data */
-                                /* strcpy(replyMsg, "\n"); */
-                                strcpy(replyMsg, fileData);
-                                strcat(replyMsg, "\n250 Requested file action okay, completed.\n");
-                                printf("replymessage2: %s", replyMsg);
-                            }
-                        }
-                        /* Clean up */
-                        fclose(filePtr);
-                       /* system("rm ./serverftp_temp"); */
+                    if (argument != NULL) {
+                        strcpy(replyMsg, "451 Unable to display directory contents (filePtr missing).\n");
+                    } else{
+                        status = system("ls > ./serverftp_temp");
                     }
-                    /* Output file could not be created. Therefore, notify the user of failure */
+                    if(status == 0){
+                        filePtr = fopen("serverftp_temp", "r");
+                        if(filePtr == NULL){
+                            strcpy(fileData, "The current directory is empty.");
+                        }
+                        /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
+                        else{
+                            bytesRead = fread(fileData, 1, 1023, filePtr); /* Leave one byte for null-terminator */
+                            /* If the file is empty, something went wrong. Notify the user of the failure. */
+                            if(bytesRead <= 0){
+                                strcpy(replyMsg, "500 Unable to display current directory (read error).\n");
+                            }
+                            /* Read output file. */
+                            else{
+                                fileData[bytesRead] = '\0'; /* NULL-terminate the file data */
+                                strcpy(replyMsg, "257 ");
+                                strcat(replyMsg, fileData);
+                                strcat(replyMsg, "\n");
+                            } 
+                            /* File read successfully. Send the user the server response. */
+                        }
+                        fclose(filePtr);
+                        system("rm ./serverftp_temp");
+                        /* Clean up the file data */
+                    }
                     else{
                         strcpy(replyMsg, "451 Unable to display directory contents (can not process command).\n");
                     }
+                    /* The output file could not be created. Notify the user that it failed */
                 }
                 else{
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
-
-                /* Add this line before the sendMessage call */
-                printf("Sending message to socket: %d\nMessage content: %s\n", ccSocket, replyMsg);
-
-                /* Send reply message */
-                sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
-                    
-                /* Clean up */
-                if(filePtr != NULL) {
-                    fclose(filePtr);
-                }
-                system("rm ./serverftp_temp");
             }
             /* Allowing the dele command in the system */
             else if(strcmp(cmd, "dele") == 0){
