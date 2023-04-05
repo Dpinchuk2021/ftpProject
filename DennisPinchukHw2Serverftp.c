@@ -463,7 +463,7 @@ int main(int argc, char *argv[] )
             /* Allowing the ls command in the system */
             else if(strcmp(cmd, "ls") == 0){
                 if(isLoggedIn == LOGGED_IN){
-                    status = system("ls > ./serverftp_temp");
+                    status = system("ls -m > ./serverftp_temp");
                     if(status == 0){
                         filePtr = fopen("./serverftp_temp", "r");
                         /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
@@ -485,7 +485,7 @@ int main(int argc, char *argv[] )
                                 }
                                 printf("replymessage1: %s", replyMsg);
                                 fileData[bytesRead] = NULL; /*NULL-terminate the file data */
-                                strcpy(replyMsg, "\n");
+                                /* strcpy(replyMsg, "\n"); */
                                 strcat(replyMsg, fileData);
                                 strcat(replyMsg, "\n250 Requested file action okay, completed.\n");
                                 printf("replymessage2: %s", replyMsg);
@@ -644,7 +644,7 @@ int main(int argc, char *argv[] )
                 }
                 close(dcSocket); /* Close the data connection regardless of whether there was an error or not. */
                 
-                /*For*/
+                /*For debugging*/
                 status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
                 if (status < 0) {
                     perror("Error sending message: ");
@@ -693,8 +693,8 @@ int main(int argc, char *argv[] )
 	    }
 	}	
 	while(1);
-	free(cmd);
-    free(argument);
+	/* free(cmd); */
+    /* free(argument); */
 }
 
 
@@ -866,7 +866,6 @@ int sendMessage(
 	)
 {
 	int i;
-    int ccSocket;
 
 
 	/* Print the message to be sent byte by byte as character */
@@ -876,9 +875,10 @@ int sendMessage(
 	}
 	printf("\n");
 
-    /* printf("Before sending message, ccSocket: %d\n", ccSocket); */
+    /* Add these lines for debugging */
+    printf("Before sending message in sendMessage, s: %d\n", s);
     printf("Sending message to socket: %d\n", s);
-    /* printf("After sending message, ccSocket: %d\n", ccSocket); */
+    
 
     if (s < 0) {
         perror("Invalid socket file descriptor");
@@ -886,6 +886,11 @@ int sendMessage(
     }
 
     int bytesSent = send(s, msg, msgSize, 0);
+
+    /* Add these lines for debugging */
+    printf("After sending message in sendMessage, s: %d\n", s);
+    printf("Bytes sent: %d\n", bytesSent);
+    
     if (bytesSent < 0) {
         perror("unable to send ");
         return(ER_SEND_FAILED);
@@ -944,3 +949,5 @@ int receiveMessage (
 
 	return (OK);
 }
+
+
