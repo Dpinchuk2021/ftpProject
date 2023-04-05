@@ -546,4 +546,3 @@ int clntExtractReplyCode (
 
    return (OK);
 }  // end of clntExtractReplyCode()
-
