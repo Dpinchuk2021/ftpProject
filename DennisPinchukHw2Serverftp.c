@@ -486,14 +486,14 @@ int main(int argc, char *argv[] )
                                 printf("replymessage1: %s", replyMsg);
                                 fileData[bytesRead] = NULL; /*NULL-terminate the file data */
                                 /* strcpy(replyMsg, "\n"); */
-                                strcat(replyMsg, fileData);
+                                strcpy(replyMsg, fileData);
                                 strcat(replyMsg, "\n250 Requested file action okay, completed.\n");
                                 printf("replymessage2: %s", replyMsg);
                             }
                         }
                         /* Clean up */
-                        /* fclose(filePtr);
-                        system("rm ./serverftp_temp"); */
+                        fclose(filePtr);
+                       /* system("rm ./serverftp_temp"); */
                     }
                     /* Output file could not be created. Therefore, notify the user of failure */
                     else{
@@ -875,32 +875,11 @@ int sendMessage(
 	}
 	printf("\n");
 
-    /* Add these lines for debugging */
-    printf("Before sending message in sendMessage, s: %d\n", s);
-    printf("Sending message to socket: %d\n", s);
-    
-
-    if (s < 0) {
-        perror("Invalid socket file descriptor");
-        return (ER_SEND_FAILED);
-    }
-
-    int bytesSent = send(s, msg, msgSize, 0);
-
-    /* Add these lines for debugging */
-    printf("After sending message in sendMessage, s: %d\n", s);
-    printf("Bytes sent: %d\n", bytesSent);
-    
-    if (bytesSent < 0) {
-        perror("unable to send ");
-        return(ER_SEND_FAILED);
-    }
-
-	/* if((send(s, msg, msgSize, 0)) < 0) socket interface call to transmit */
-	/* {
+	if((send(s, msg, msgSize, 0)) < 0) /* socket interface call to transmit */
+	{
 		perror("unable to send ");
 		return(ER_SEND_FAILED);
-	} */
+	}
 
 	return(OK); /* successful send */
 }
@@ -949,5 +928,3 @@ int receiveMessage (
 
 	return (OK);
 }
-
-
