@@ -145,7 +145,7 @@ int main(
 		/* Extract the command and argument from the userCmd string. */
 		strcpy(userCmdCopy, userCmd);
 		cmd = strtok(userCmdCopy, " ");
-		/* argument = strtok(NULL, " "); */
+		argument = strtok(NULL, " ");
 
 		if(strcmp(cmd, "send") != 0 && strcmp(cmd, "recv") != 0){
 			printf("Sending message on ccSocket.\n");
@@ -167,8 +167,10 @@ int main(
 
 		/* Begin the process of sending the data.*/
 		if(strcmp(cmd, "send") == 0){
-			printf("break1\n");
-			if(argument[0] == NULL || strcmp(argument, "") == 0){
+			/* printf("argument: %s\n", argument); Debugging 1*/
+			/* printf("argument[0]: %s\n", argument[0]);  Debugging 2*/
+			/* printf("break1\n"); */
+			if(argument == NULL || strcmp(argument, "") == 0){
 				printf("File argument not specified. Data connection will not be opened. No command sent.\n");
 			}else{
 				printf("break3\n");
