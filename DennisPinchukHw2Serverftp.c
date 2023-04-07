@@ -125,7 +125,7 @@ int main(int argc, char *argv[] )
 	/* wait until connection request comes from client ftp */
 	ccSocket = accept(listenSocket, NULL, NULL);
 
-    printf("Accepted connection, ccSocket: %d\n", ccSocket); /*Debugging for ls*/
+   /* printf("Accepted connection, ccSocket: %d\n", ccSocket); Debugging for ls*/
 
 	printf("Came out of accept() function \n"); /*Print a message indicating that the program has successfully returned from the accept() function*/
 
@@ -146,7 +146,7 @@ int main(int argc, char *argv[] )
 	 */
 	do
 	{
-        /*The following comments where debugging testing and can be ignored. Start on line 160*/
+        /*The following comments where debugging testing and can be ignored. Start on line 162*/
 
 	    /* Allocation of memory for commands and arguements. */
 	    /* char *cmd = (char *)malloc(256 * sizeof(char)); */
@@ -179,8 +179,8 @@ int main(int argc, char *argv[] )
             close(ccSocket);
             break;
         }
-    	printf("Sent reply: %s", replyMsg);
-        printf("bytesSent: %d\n", bytesSent);
+    	/* printf("Sent reply: %s", replyMsg); */
+        /* printf("bytesSent: %d\n", bytesSent); */
 
 /*
  * Starting Homework#2 program to process all ftp commands must be added here.
@@ -200,9 +200,10 @@ int main(int argc, char *argv[] )
     			printf("userCmd is the empty set.\n"); /* otherwise, the program will print out an empty set */
 	    }
 
-	    printf("cmd and arg initialized.\n"); /* Output a message indicating that the command and argument have been initialized */
-	    printf("cmd: %s.\n", cmd); /**/
-	    printf("arg: %s.\n", argument); /**/
+        /* For previous debugging */
+	    /* printf("cmd and arg initialized.\n");*/
+	    /* printf("cmd: %s.\n", cmd); */
+	    /* printf("arg: %s.\n", argument);*/
 
 	    /* "Extract the command and argument from the 'userCmd' variable using strtok */
 	    
@@ -233,9 +234,9 @@ int main(int argc, char *argv[] )
 
 	    /* Output a message indicating that the server has received the command */
 
-	    printf("Received command: %s.\n", userCmd); 
-	    printf("cmd: %s. \n", cmd); 
-	    printf("arg: %s.\n", argument);
+	    printf("Received command: %s.\n", userCmd); /**/
+	    printf("cmd: %s. \n", cmd); /**/
+	    printf("arg: %s.\n", argument); /**/
 
 	    /* The initial conditional statement to assist with handling the command in the server. The beginning of 1 out of 13 of these commands. */
 	    /* Establish the user command if the user is authenticated/authorized*/   
@@ -258,7 +259,7 @@ int main(int argc, char *argv[] )
                         printf("%s \n",(userList[i]));
                         printf("%s \n",(passList[i])); /*Remove this when its fully done*/
             			if(strcmp(userList[i], argument) == 0) {
-                            strcpy(testpass, passList[i]); /*Debugging */
+                            strcpy(testpass, passList[i]); /* Fill this in last */
                 			userIndex = i;
                 			isLoggedIn = LOGGED_OUT;
                 			strcpy(replyMsg, "331 User name good, need password.\n");
@@ -316,7 +317,7 @@ int main(int argc, char *argv[] )
 				strcpy(cmd, "quit");
 				}
 			}
-            printf("break1");
+           /*printf("break1");*/
 	    }
 
         else if(isLoggedIn == LOGGED_IN){
@@ -578,12 +579,12 @@ int main(int argc, char *argv[] )
                 close(dcSocket); /* Close the data connection socket regardless of any errors that may have occurred. */
 
                 /*For Debugging*/
-                status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+              /*  status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
                 if (status < 0) {
                     perror("Error sending message: ");
                     close(ccSocket);
                     break; // break out of the while loop
-                }
+                } */
             }
             
             /* Allowing the recv command in the system */
@@ -632,12 +633,12 @@ int main(int argc, char *argv[] )
                 close(dcSocket); /* Close the data connection regardless of whether there was an error or not. */
                 
                 /*For debugging*/
-                status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+               /* status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
                 if (status < 0) {
                     perror("Error sending message: ");
                     close(ccSocket);
                     break; // break out of the while loop
-                }
+                } */
             }
         }
 		/* Send a response to the quit command. */
@@ -670,7 +671,7 @@ int main(int argc, char *argv[] )
 	     * each command received in this implementation.
 	     */    
 
-        printf("replymessage3: %s", replyMsg);
+        /* printf("replymessage3: %s", replyMsg); */
         /* printf("ccSocket value before calling sendMessage(): %d\n", ccSocket); For debugging*/
 	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
 				/* the reply string strlen does not count NULL character */
