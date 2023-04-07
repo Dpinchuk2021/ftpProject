@@ -130,8 +130,8 @@ int main(
 		printf("my ftp> ");
 		
 		/* Reset the initial value of the first element in the command and argument array. */
-		cmd      = NULL;
-		argument = NULL;
+		/* cmd      = NULL; */
+		/* argument = NULL; */
 		
 		/* Obtain the input provided by the user and store it in the variable userCmd. */
 		fgets(userCmd, sizeof(userCmd), stdin);
@@ -145,7 +145,7 @@ int main(
 		/* Extract the command and argument from the userCmd string. */
 		strcpy(userCmdCopy, userCmd);
 		cmd = strtok(userCmdCopy, " ");
-		argument = strtok(NULL, " ");
+		/* argument = strtok(NULL, " "); */
 
 		if(strcmp(cmd, "send") != 0 && strcmp(cmd, "recv") != 0){
 			printf("Sending message on ccSocket.\n");
@@ -159,7 +159,7 @@ int main(
 		}
 
 		/* Receive reply message from the the server */
-		status = receiveMessage(ccSocket, replyMsg, sizeof(replyMsg), &msgSize);
+		/* status = receiveMessage(ccSocket, replyMsg, sizeof(replyMsg), &msgSize); */
 		if(status != OK)
 		{
 		    break;
@@ -167,11 +167,14 @@ int main(
 
 		/* Begin the process of sending the data.*/
 		if(strcmp(cmd, "send") == 0){
+			printf("break1\n");
 			if(argument[0] == NULL || strcmp(argument, "") == 0){
 				printf("File argument not specified. Data connection will not be opened. No command sent.\n");
 			}else{
 				filePtr = NULL;
+				printf("break2\n");
 				filePtr = fopen(argument, "r");
+				printf("break3\n");
 
 				/* Verify if the specified file is readable. If not, don't send the command or establish a data connection. */
 				if(filePtr == NULL){
