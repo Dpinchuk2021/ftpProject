@@ -171,10 +171,11 @@ int main(
 			if(argument[0] == NULL || strcmp(argument, "") == 0){
 				printf("File argument not specified. Data connection will not be opened. No command sent.\n");
 			}else{
-				filePtr = NULL;
-				printf("break2\n");
-				filePtr = fopen(argument, "r");
 				printf("break3\n");
+				filePtr = NULL;
+				printf("break3\n");
+				filePtr = fopen(argument, "r");
+				printf("break4\n");
 
 				/* Verify if the specified file is readable. If not, don't send the command or establish a data connection. */
 				if(filePtr == NULL){
