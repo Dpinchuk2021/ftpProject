@@ -591,7 +591,7 @@ int main(int argc, char *argv[] )
             else if(strcmp(cmd, "recv") == 0){
                 /* Try to establish a data connection even if there is an error to prevent the client from waiting indefinitely. */
                 printf("Calling clntConnect to connect to the client.\n");
-                status=clntConnect("192.168.200.230", &dcSocket);  /* Off-campus IP: "143.241.37.230" */
+                status=clntConnect("10.3.200.17", &dcSocket);  /* Off-campus IP: "143.241.37.230" */
                 if(status != 0){
                     /* When a data connection fails, send a response to the client and close the socket for the data connection. */
                     strcpy(replyMsg, "425 'recv' could not establish data connection. Closing data connection socket.\n");
@@ -916,4 +916,5 @@ int receiveMessage (
 
 	return (OK);
 }
+
 
