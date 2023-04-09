@@ -125,7 +125,7 @@ int main(int argc, char *argv[] )
 	/* wait until connection request comes from client ftp */
 	ccSocket = accept(listenSocket, NULL, NULL);
 
-   /* printf("Accepted connection, ccSocket: %d\n", ccSocket); Debugging for ls*/
+   	/* printf("Accepted connection, ccSocket: %d\n", ccSocket); Debugging for ls*/
 
 	printf("Came out of accept() function \n"); /*Print a message indicating that the program has successfully returned from the accept() function*/
 
@@ -159,7 +159,7 @@ int main(int argc, char *argv[] )
 	    /* Receive client ftp commands until */
 	    /* printf("break2\n");*/	
 
-        /*Call receiveMessage function to get the FTP command from the client, and store the command, status, and message size in respective variables*/
+            /*Call receiveMessage function to get the FTP command from the client, and store the command, status, and message size in respective variables*/
  	    status=receiveMessage(ccSocket, userCmd, sizeof(userCmd), &msgSize); 
 	    if(status < 0)
 	    {
@@ -172,15 +172,15 @@ int main(int argc, char *argv[] )
 	    /* printf("break4\n"); */	
 	    /* Debugging Purposes */
 	    int bytesSent;
-    	char replyMsg[] = "Message received.\n";
-        status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
-        if (status < 0) {
-            perror("Error sending message: ");
-            close(ccSocket);
-            break;
-        }
-    	/* printf("Sent reply: %s", replyMsg); */
-        /* printf("bytesSent: %d\n", bytesSent); */
+    	    char replyMsg[] = "Message received.\n";
+            status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+            if (status < 0) {
+            	perror("Error sending message: ");
+            	close(ccSocket);
+            	break;
+            }
+    	    /* printf("Sent reply: %s", replyMsg); */
+            /* printf("bytesSent: %d\n", bytesSent); */
 
 /*
  * Starting Homework#2 program to process all ftp commands must be added here.
@@ -195,23 +195,23 @@ int main(int argc, char *argv[] )
 	    printf("Message received. status: %d.\n", status); /* The client is informed that their message has been received by the program. */
 
 	    if (userCmd == NULL) {
-    			printf("userCmd is NULL.\n"); /* There is no valid command or argument will be printed */
+    		printf("userCmd is NULL.\n"); /* There is no valid command or argument will be printed */
 	    } else if (strcmp(userCmd, "") == 0) {
-    			printf("userCmd is the empty set.\n"); /* otherwise, the program will print out an empty set */
+    		printf("userCmd is the empty set.\n"); /* otherwise, the program will print out an empty set */
 	    }
 
-        /* For previous debugging */
+            /* For previous debugging */
 	    /* printf("cmd and arg initialized.\n");*/
 	    /* printf("cmd: %s.\n", cmd); */
 	    /* printf("arg: %s.\n", argument);*/
 
 	    /* "Extract the command and argument from the 'userCmd' variable using strtok */
 	    
-        strcpy(userCmdCopy, userCmd); /**/
-		cmd = strtok(userCmdCopy, " "); /**/
-		/* argument = strtok(NULL, " "); */
+            strcpy(userCmdCopy, userCmd); /**/
+	    cmd = strtok(userCmdCopy, " "); /**/
+	    /* argument = strtok(NULL, " "); */
         
-        strcpy(userCmdCopy, userCmd); /**/
+            strcpy(userCmdCopy, userCmd); /**/
 	    cmd = strtok(userCmdCopy, " "); /**/
 	    if (cmd == NULL) {
     		printf("cmd is NULL after strtok.\n"); /**/
@@ -224,7 +224,7 @@ int main(int argc, char *argv[] )
             /* Handle the case where the argument is required for these specific commands */
             printf("Missing argument for command: %s.\n", cmd);
             /* continue; */
-        }
+         }
         
         
         /* if (argument == NULL) {
@@ -256,10 +256,10 @@ int main(int argc, char *argv[] )
 				    int numUsers = 4;
         			/* int numUsers = sizeof(userList) / sizeof(*userList); */
         			for(; i < numUsers; i++) {
-                        printf("%s \n",(userList[i]));
-                        printf("%s \n",(passList[i])); /*Remove this when its fully done*/
+                        	printf("%s \n",(userList[i]));
+                        	printf("%s \n",(passList[i])); /*Remove this when its fully done*/
             			if(strcmp(userList[i], argument) == 0) {
-                            strcpy(testpass, passList[i]); /* Fill this in last */
+                            		strcpy(testpass, passList[i]); /* Fill this in last */
                 			userIndex = i;
                 			isLoggedIn = LOGGED_OUT;
                 			strcpy(replyMsg, "331 User name good, need password.\n");
@@ -267,7 +267,7 @@ int main(int argc, char *argv[] )
             			}
         		}
         		if(userIndex < 0) {
-            	    strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
+            	    		strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
         		}
     		}
 	}
@@ -305,7 +305,7 @@ int main(int argc, char *argv[] )
 		else{
 			printf("Processing pass command - invalid command.\n");
 			isLoggedIn = LOGGED_OUT;
-            userIndex = -1;
+            		userIndex = -1;
 			if(userIndex >= 0) {
 				strcpy(replyMsg, "530 Invalid password for ");
 				strcat(replyMsg, userList[userIndex]);
@@ -317,15 +317,15 @@ int main(int argc, char *argv[] )
 				strcpy(cmd, "quit");
 				}
 			}
-           /*printf("break1");*/
+           	/*printf("break1");*/
 	    }
 
-        else if(isLoggedIn == LOGGED_IN){
+            else if(isLoggedIn == LOGGED_IN){
             
 
         
-	        /* Implmenting the stat command in the system */
-	        /* Indicates that the transfer mode for the FTP connection is set to ASCII mode */
+	    /* Implmenting the stat command in the system */
+	    /* Indicates that the transfer mode for the FTP connection is set to ASCII mode */
             if(strcmp(cmd, "stat") == 0 || strcmp(cmd, "status") == 0) {
                 strcpy(replyMsg, "211 Transfer mode is ASCII. \n");
             }
@@ -564,7 +564,7 @@ int main(int argc, char *argv[] )
                                 status = receiveMessage(dcSocket, ftpData, sizeof(ftpData), &bytesReceived);
                                 fwrite(ftpData, 1, bytesReceived, filePtr);
                                 ftpBytes = ftpBytes + bytesReceived;
-                            }while(bytesReceived > 0 && status == OK); /* Terminate the loop for reading data from the data connection. */
+                            } while(bytesReceived > 0 && status == OK); /* Terminate the loop for reading data from the data connection. */
                             sprintf(replyMsg, "226 Received %d", ftpBytes);
                             strcat(replyMsg, " bytes. Closing data connection.\n");
                         }
@@ -641,48 +641,47 @@ int main(int argc, char *argv[] )
                 } */
             }
         }
-		/* Send a response to the quit command. */
-		else if(strcmp(cmd, "quit") == 0){
-			strcpy(replyMsg, "221 Service closing data and control connections.\n");
+	/* Send a response to the quit command. */
+	else if(strcmp(cmd, "quit") == 0){
+		strcpy(replyMsg, "221 Service closing data and control connections.\n");
 
-			printf("Closing data connection socket.\n");
-			close (dcSocket);  /* Close server data connection socket */
+		printf("Closing data connection socket.\n");
+		close (dcSocket);  /* Close server data connection socket */
 
-			printf("Closing control connection socket.\n");
-			close (ccSocket);  /* Close client control connection socket */
+		printf("Closing control connection socket.\n");
+		close (ccSocket);  /* Close client control connection socket */
 
-			printf("Closing listen socket.\n");
-			close(listenSocket);  /*close listen socket */
+		printf("Closing listen socket.\n");
+		close(listenSocket);  /*close listen socket */
 
-			printf("Exiting from server ftp main. \n");
+		printf("Exiting from server ftp main. \n");
 
-			return (status);
-		}
+		return (status);
+	}
 		
-		/* The input command is invalid and cannot be recognized. */
-		else{
-			strcpy(replyMsg, "502 Command not implemented. Use \"help\" for a list of valid commands.\n");
-		}
+	/* The input command is invalid and cannot be recognized. */
+	else{
+		strcpy(replyMsg, "502 Command not implemented. Use \"help\" for a list of valid commands.\n");
+	}
 	
 	
 		
-	    /*
- 	     * ftp server sends only one reply message to the client for 
-	     * each command received in this implementation.
-	     */    
+	/*
+ 	 * ftp server sends only one reply message to the client for 
+	 * each command received in this implementation.
+	 */    
 
         /* printf("replymessage3: %s", replyMsg); */
         /* printf("ccSocket value before calling sendMessage(): %d\n", ccSocket); For debugging*/
-	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
-				/* the reply string strlen does not count NULL character */
-	    if(status < 0)
-	    {	
+	status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
+	/* the reply string strlen does not count NULL character */
+	if(status < 0){	
 		break;  /* exit while loop */
-	    }
+	   }
 	}	
 	while(1);
 	/* free(cmd); */
-    /* free(argument); */
+    	/* free(argument); */
 }
 
 
