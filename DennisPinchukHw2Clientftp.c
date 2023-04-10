@@ -38,13 +38,13 @@ int receiveMessage(int s, char *buffer, int  bufferSize, int *msgSize);
 
 /* List of all global variables */
 
-char userCmd[1024];	/* user typed ftp command line read from keyboard */
+char userCmd[4096];	/* user typed ftp command line read from keyboard */
 char *cmd;		/* ftp command extracted from userCmd */
 char *argument;	/* argument extracted from userCmd */
-char replyMsg[1024];    /* buffer to receive reply message from server */
+char replyMsg[4096];    /* buffer to receive reply message from server */
 char userCmdCopy[1024];
 
-char ftpData[1024];		/* A buffer used to transmit or receive data to/from the client. */
+char ftpData[4096];		/* A buffer used to transmit or receive data to/from the client. */
 int  ftpBytes      = 0; /* This variable is used to keep track of the total number of bytes transferred during the FTP process.*/
 int  fileBytesRead = 0; /* The variable to store the number of bytes read by the fread function.*/
 int  bytesReceived = 0; /* The size of a single FTP message in bytes received. */
@@ -134,7 +134,8 @@ int main(
 		/* argument = NULL; */
 		
 		/* Obtain the input provided by the user and store it in the variable userCmd. */
-		fgets(userCmd, sizeof(userCmd), stdin);
+		fgets(userCmd, 4096, stdin);
+		/*sizeof(userCmd)*/
 
 		/* Remove the newline character from userCmd */
 		size_t len = strlen(userCmd);
@@ -160,10 +161,10 @@ int main(
 
 		/* Receive reply message from the the server */
 		/* status = receiveMessage(ccSocket, replyMsg, sizeof(replyMsg), &msgSize); */
-		if(status != OK)
+		/* if(status != OK)
 		{
 		    break;
-		}
+		} */
 
 		/* Begin the process of sending the data.*/
 		if(strcmp(cmd, "send") == 0){
