@@ -45,16 +45,16 @@ char userCmdCopy[1024]; /* Utilized for temporary string manipulation */
 char chgCmd[1024];      /* Utilized for converting a command into a UNIX-compatible command */
 char *cmd;   		    /* FTP command extracted from userCmd, without an argument. */
 char *argument;         /* Argument extracted from userCmd, without the FTP command. */
-char replyMsg[4096];    /* Buffer for sending response messages to the client */
-char ftpData[4096];		/* Buffer for sending and receiving file data to and from the client which is set to 4 bytes */
+char replyMsg[1024];    /* Buffer for sending response messages to the client */ /*4096*/
+char ftpData[1024];		/* Buffer for sending and receiving file data to and from the client which is set to 4 bytes */ /*4096*/
 int  ftpBytes      = 0; /* Utilized for tallying the total bytes transferred during FTP */
 int  fileBytesRead = 0; /* The number of bytes read using fread */
 int  bytesReceived = 0; /* The count of bytes received in a single FTP message. */
-char testpass[4096];     /* A second password array storing memory that will be allocated to the string*/
+char testpass[1024];     /* A second password array storing memory that will be allocated to the string*/ /*4096*/
 
 FILE *filePtr;                                       /* A pointer to a temporary file that stores the output of logged commands */
 int  bytesRead    = -1;                              /* The number of bytes read by the fread() function */
-char fileData[4096];                                 /* A buffer for storing the byte data retrieved by fread(), with a maximum size of 4096 */
+char fileData[1024];                                 /* A buffer for storing the byte data retrieved by fread(), with a maximum size of 4096 */ /*4096*/
 
 /* Login Codes */
 #define LOGGED_IN 1   /*Represents a value (1) for the status when a user is logged in */
@@ -182,10 +182,10 @@ int main(int argc, char *argv[] )
     	/* printf("Sent reply: %s", replyMsg); */
         /* printf("bytesSent: %d\n", bytesSent); */
 
-/*
- * Starting Homework#2 program to process all ftp commands must be added here.
- * See Homework#2 for a list of FTP commands to implement.
- */
+        /*
+        * Starting Homework#2 program to process all ftp commands must be added here.
+        * See Homework#2 for a list of FTP commands to implement.
+        */
 
 	    /* Reinitialize the first element of the command and argument. */
 
@@ -265,12 +265,12 @@ int main(int argc, char *argv[] )
                 			strcpy(replyMsg, "331 User name good, need password.\n");
                 			break;
             			}
-        		}
-        		if(userIndex < 0) {
-            	    strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
-        		}
-    		}
-	}
+        		    }
+        		    if(userIndex < 0) {
+            	        strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
+        		    }
+    		    }
+	        }
 
 
 	    /* The 'password' command is processed as 'pass' and can only be executed after a user successfully enters their username.
@@ -670,7 +670,7 @@ int main(int argc, char *argv[] )
         /* printf("replymessage3: %s", replyMsg); */
         /* printf("ccSocket value before calling sendMessage(): %d\n", ccSocket); For debugging*/
 	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
-				/* the reply string strlen does not count NULL character */
+		/* the reply string strlen does not count NULL character */
 	    if(status < 0)
 	    {	
 		break;  /* exit while loop */
@@ -912,3 +912,5 @@ int receiveMessage (
 
 	return (OK);
 }
+
+
