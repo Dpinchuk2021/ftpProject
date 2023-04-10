@@ -38,13 +38,13 @@ int receiveMessage(int s, char *buffer, int  bufferSize, int *msgSize);
 
 /* List of all global variables */
 
-char userCmd[4096];	/* user typed ftp command line read from keyboard */
+char userCmd[1024];	/* user typed ftp command line read from keyboard */ /*4096*/
 char *cmd;		/* ftp command extracted from userCmd */
 char *argument;	/* argument extracted from userCmd */
-char replyMsg[4096];    /* buffer to receive reply message from server */
+char replyMsg[1024];    /* buffer to receive reply message from server */ /*4096*/
 char userCmdCopy[1024];
 
-char ftpData[4096];		/* A buffer used to transmit or receive data to/from the client. */
+char ftpData[1024];		/* A buffer used to transmit or receive data to/from the client. */ /*4096*/
 int  ftpBytes      = 0; /* This variable is used to keep track of the total number of bytes transferred during the FTP process.*/
 int  fileBytesRead = 0; /* The variable to store the number of bytes read by the fread function.*/
 int  bytesReceived = 0; /* The size of a single FTP message in bytes received. */
@@ -174,11 +174,11 @@ int main(
 			if(argument == NULL || strcmp(argument, "") == 0){
 				printf("File argument not specified. Data connection will not be opened. No command sent.\n");
 			}else{
-				printf("break3\n");
+				/*printf("break3\n"); */
 				filePtr = NULL;
-				printf("break3\n");
+				/*printf("break4\n"); */
 				filePtr = fopen(argument, "r");
-				printf("break4\n");
+				/*printf("break5\n"); */
 
 				/* Verify if the specified file is readable. If not, don't send the command or establish a data connection. */
 				if(filePtr == NULL){
@@ -210,7 +210,7 @@ int main(
 						do{
 							printf("Top of send do loop. status: %d\n", status); /* prints a debug message indicating the start of a loop and the current status. */
 							fileBytesRead = 0; /* This keep track of the number of bytes read from the file being transferred. */
-							fileBytesRead = fread(ftpData, 1, 100, filePtr); /* A read operation may return an error and the number of bytes read cannot be used to distinguish it from a successful read.*/
+							fileBytesRead = fread(ftpData, 1, 1023, filePtr); /* A read operation may return an error and the number of bytes read cannot be used to distinguish it from a successful read.*/
 							printf("Read packet from file complete.\n"); /* Print a message indicating that reading a packet from a file is complete. */
 							status = sendMessage(dcSocket, ftpData, fileBytesRead); /* Sends a file data message using the sendMessage() function with ftpData buffer and fileBytesRead as arguments, and sets the status variable with the function's return value that indicates the success of the message transmission. */
 							printf("Packet sent. sendMessage status: %d\n", status); /* Prints a message indicating that a packet has been sent using the sendMessage() function, and also displays the status of the function call. */
@@ -269,7 +269,7 @@ int main(
 					do{
 						bytesReceived = 0;
 						status = receiveMessage(dcSocket, ftpData, sizeof(ftpData), &bytesReceived);
-						fwrite(ftpData, 1, bytesReceived, filePtr);
+						fwrite(ftpData, 1, 1023, filePtr);
 						ftpBytes = ftpBytes + bytesReceived;
 					}while(bytesReceived > 0 && status == OK); /*  The end of a loop that reads data over a data connection socket. */
 			
