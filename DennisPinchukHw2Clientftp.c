@@ -4,6 +4,11 @@
  * NOTE: Starting homework #2, add more comments here describing the overall function
  * performed by server ftp program
  * This includes, the list of ftp commands processed by server ftp.
+ * 
+ * Name: Dennis Pinchuk
+ * Class: CSCI 477 Framingham State University
+ * Professor: Krishna Suban
+ *
  *
  */
 
@@ -15,8 +20,8 @@
 #include <netdb.h>
 #include <string.h>
 
-#define SERVER_FTP_PORT 5017
-#define DATA_CONNECTION_PORT 5018
+#define SERVER_FTP_PORT 5017 /* When the client wants to connect to the server, it will use this port number to establish a control connection. */
+#define DATA_CONNECTION_PORT 5018 /* During an FTP session, when the client wants to transfer data (like uploading or downloading files), it will use this port number to establish a separate data connection with the server. */
 
 /* Error and OK codes */
 #define OK 0
@@ -38,13 +43,13 @@ int receiveMessage(int s, char *buffer, int  bufferSize, int *msgSize);
 
 /* List of all global variables */
 
-char userCmd[1024];	/* user typed ftp command line read from keyboard */ /*4096*/
+char userCmd[1024];	/* user typed ftp command line read from keyboard */
 char *cmd;		/* ftp command extracted from userCmd */
 char *argument;	/* argument extracted from userCmd */
-char replyMsg[1024];    /* buffer to receive reply message from server */ /*4096*/
-char userCmdCopy[1024];
+char replyMsg[1024];    /* buffer to receive reply message from server */
+char userCmdCopy[1024]; /* Utilized for temporary string manipulation */
 
-char ftpData[1024];		/* A buffer used to transmit or receive data to/from the client. */ /*4096*/
+char ftpData[1024];		/* A buffer used to transmit or receive data to/from the client. */
 int  ftpBytes      = 0; /* This variable is used to keep track of the total number of bytes transferred during the FTP process.*/
 int  fileBytesRead = 0; /* The variable to store the number of bytes read by the fread function.*/
 int  bytesReceived = 0; /* The size of a single FTP message in bytes received. */
@@ -90,10 +95,10 @@ int main(
          * UNIX will buffer (not flush)
 	 * output to display and you will not see it on monitor.
  	 */
-	printf("Started execution of client ftp\n");
+	printf("Started execution of client ftp\n"); /*Notify the user that the client execution has started*/
 
 
-	 /* Connect to client ftp*/
+	/* Connect to client ftp*/
 	printf("Calling clntConnect to connect to the server\n");	/* changed text */
 
 	status=clntConnect("10.3.200.17", &ccSocket);
@@ -107,11 +112,15 @@ int main(
 	 * Listen for a data connection.
 	 * Copied and edited from serverftp.c.
 	 */
+
+	/* Initialize client data connection to server (listen). */
 	printf("Initialize client data connection to server (listen).\n");	/* Tells the user that the terminal is initializing the client data connection to the server. */
 
+	/* Call svcInitServer function to initialize the server and check for errors. */
 	status=svcInitServer(&listensocket);
 	if(status != 0)
 	{
+		/* If there is an error initializing the server, display a message and exit the program. */
 		printf("Exiting client ftp due to svcInitServer returned error.\n");
 		exit(status); /* If there is no data connection then it will return and error and exit. */
 	}
@@ -129,10 +138,6 @@ int main(
 	{
 		printf("my ftp> ");
 		
-		/* Reset the initial value of the first element in the command and argument array. */
-		/* cmd      = NULL; */
-		/* argument = NULL; */
-		
 		/* Obtain the input provided by the user and store it in the variable userCmd. */
 		fgets(userCmd, 4096, stdin);
 		/*sizeof(userCmd)*/
@@ -148,43 +153,32 @@ int main(
 		cmd = strtok(userCmdCopy, " ");
 		argument = strtok(NULL, " ");
 
+		/* Check if the command is not "send" and not "recv" */
 		if(strcmp(cmd, "send") != 0 && strcmp(cmd, "recv") != 0){
 			printf("Sending message on ccSocket.\n");
 
 			/* Send the command entered by the user to the server.*/
 			status = sendMessage(ccSocket, userCmd, strlen(userCmd)+1);
 		}
-		if(status != OK) /* If the status isn't okay then break the cycle loop. */
+
+		/* If the status isn't okay then break the cycle loop. */
+		if(status != OK)
 		{
 		    break;
 		}
 
-		/* Receive reply message from the the server */
-		/* status = receiveMessage(ccSocket, replyMsg, sizeof(replyMsg), &msgSize); */
-		/* if(status != OK)
-		{
-		    break;
-		} */
-
 		/* Begin the process of sending the data.*/
 		if(strcmp(cmd, "send") == 0){
-			/* printf("argument: %s\n", argument); Debugging 1*/
-			/* printf("argument[0]: %s\n", argument[0]);  Debugging 2*/
-			/* printf("break1\n"); */
 			if(argument == NULL || strcmp(argument, "") == 0){
+				/*If there is no argument then reply with the following message.*/
 				printf("File argument not specified. Data connection will not be opened. No command sent.\n");
 			}else{
-				/*printf("break3\n"); */
 				filePtr = NULL;
-				/*printf("break4\n"); */
 				filePtr = fopen(argument, "r");
-				/*printf("break5\n"); */
-
 				/* Verify if the specified file is readable. If not, don't send the command or establish a data connection. */
 				if(filePtr == NULL){
 				printf("Could not open specified file. Data connection will not be opened. No command sent.\n");
 				}
-			
 				/* If the file is readable, send the command to the server and establish a data connection.*/
 				else{
 					printf("send: Sending message on ccSocket.\n");
@@ -222,8 +216,10 @@ int main(
 						if(status != OK){
 							perror("sendMessage returned not OK: Closing data connection.\n");
 						}else{
+							/*Prints to the user that it reached the end of the file.*/
 							printf("\nReached EOF. %d bytes sent. Closing data connection.\n\n", ftpBytes);
 						}
+						/*closing statments*/
 						fclose(filePtr);
 						close(dcSocket);
 					}
