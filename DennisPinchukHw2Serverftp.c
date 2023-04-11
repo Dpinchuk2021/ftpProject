@@ -923,4 +923,3 @@ int receiveMessage (
 
 	return (OK);
 }
-
