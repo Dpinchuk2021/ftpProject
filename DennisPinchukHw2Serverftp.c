@@ -4,6 +4,11 @@
  * NOTE: Starting homework #2, add more comments here describing the overall function
  * performed by server ftp program
  * This includes, the list of ftp commands processed by server ftp.
+ * 
+ * 
+ * Name: Dennis Pinchuk
+ * Class: CSCI 477 Framingham State University
+ * Professor: Krishna Suban
  *
  */
 
@@ -106,7 +111,7 @@ int main(int argc, char *argv[] )
          * UNIX will buffer (not flush)
 	 * output to display and you will not see it on monitor.
 	*/
-	printf("Started execution of server ftp\n");
+	printf("Started execution of server ftp\n"); /*Prints out that the server has started when executing the executable*/
 
 
 	 /*initialize server ftp*/
@@ -146,51 +151,19 @@ int main(int argc, char *argv[] )
 	 */
 	do
 	{
-        /*The following comments where debugging testing and can be ignored. Start on line 162*/
-
-	    /* Allocation of memory for commands and arguements. */
-	    /* char *cmd = (char *)malloc(256 * sizeof(char)); */
-    	/* char *argument = (char *)malloc(256 * sizeof(char)); */
-
-	    /* memset(cmd, 0, 256 * sizeof(char)); */
-	    /* memset(argument, 0, 256 * sizeof(char)); */
-
-	    /* printf("break1\n"); */
-	    /* Receive client ftp commands until */
-	    /* printf("break2\n");*/	
-
         /*Call receiveMessage function to get the FTP command from the client, and store the command, status, and message size in respective variables*/
  	    status=receiveMessage(ccSocket, userCmd, sizeof(userCmd), &msgSize); 
 	    if(status < 0)
 	    {
-		    /* printf("break3\n"); */	
-		    printf("Receive message failed. Closing control connection \n"); /**/
-		    printf("Server ftp is terminating.\n"); /**/
+		    printf("Receive message failed. Closing control connection \n");
+		    printf("Server ftp is terminating.\n"); 
 		    break; /*Break out of the if statement so there is no infinite loop*/
 	    }
-	    
-	    /* printf("break4\n"); */	
-	    /* Debugging Purposes */
-	    /* int bytesSent; */
-        /*char replyMsg[] = "Message received.\n";*/
-        /* status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
-        if (status < 0) {
-            perror("Error sending message: ");
-            close(ccSocket);
-            break;
-        } */
-    	/* printf("Sent reply: %s", replyMsg); */
-        /* printf("bytesSent: %d\n", bytesSent); */
 
         /*
         * Starting Homework#2 program to process all ftp commands must be added here.
         * See Homework#2 for a list of FTP commands to implement.
         */
-
-	    /* Reinitialize the first element of the command and argument. */
-
-	    /* char *cmd = NULL; */
-	    /* char *argument = NULL; */
 
 	    printf("Message received. status: %d.\n", status); /* The client is informed that their message has been received by the program. */
 
@@ -200,37 +173,26 @@ int main(int argc, char *argv[] )
     			printf("userCmd is the empty set.\n"); /* otherwise, the program will print out an empty set */
 	    }
 
-        /* For previous debugging */
-	    /* printf("cmd and arg initialized.\n");*/
-	    /* printf("cmd: %s.\n", cmd); */
-	    /* printf("arg: %s.\n", argument);*/
-
 	    /* "Extract the command and argument from the 'userCmd' variable using strtok */
-	    
-        strcpy(userCmdCopy, userCmd); /**/
-		cmd = strtok(userCmdCopy, " "); /**/
+        strcpy(userCmdCopy, userCmd); /* Copies the content of the userCmd string into userCmdCopy.*/
+		cmd = strtok(userCmdCopy, " "); /*Tokenizes userCmdCopy using a space as the delimiter, and stores the first token (command) in the cmd variable.*/
 		/* argument = strtok(NULL, " "); */
         
-        strcpy(userCmdCopy, userCmd); /**/
-	    cmd = strtok(userCmdCopy, " "); /**/
+        strcpy(userCmdCopy, userCmd); /*It seems redundant but my code would give a code dump error without this line*/
+	    cmd = strtok(userCmdCopy, " "); /*Same with this line as well*/
+        /*If no valid command was provided.*/
 	    if (cmd == NULL) {
-    		printf("cmd is NULL after strtok.\n"); /**/
-    		continue; /**/
+    		printf("cmd is NULL after strtok.\n"); /*Prints a message to the console indicating that cmd is NULL after tokenization.*/
+    		continue; /*Skips the rest of the loop iteration and starts the next iteration, since no valid command was found.*/
 	    }
 
-	    argument = strtok(NULL, " "); 
+	    argument = strtok(NULL, " "); /**/
+        /*This is where all 13 commands are implemented via hard code for testing purposes.*/ 
 	    if (argument == NULL && (strcmp(cmd, "pass") == 0 || strcmp(cmd, "user") == 0 || strcmp(cmd, "stat") == 0 || strcmp(cmd, "mkdir") == 0 || strcmp(cmd, "rmdir") == 0 || strcmp(cmd, "dele") == 0 || strcmp(cmd, "cd") == 0 || strcmp(cmd, "pwd") == 0 || strcmp(cmd, "help") == 0)) {
-            /*strcmp(cmd, "ls") == 0*/
             /* Handle the case where the argument is required for these specific commands */
             printf("Missing argument for command: %s.\n", cmd);
             /* continue; */
         }
-        
-        
-        /* if (argument == NULL) {
-    		printf("argument is NULL after strtok.\n");
-    		continue;
-	    } */ 
 
 	    /* Output a message indicating that the server has received the command */
 
@@ -241,32 +203,34 @@ int main(int argc, char *argv[] )
 	    /* The initial conditional statement to assist with handling the command in the server. The beginning of 1 out of 13 of these commands. */
 	    /* Establish the user command if the user is authenticated/authorized*/   
 
+        /*If the received command is "help", send a list of supported commands in the replyMsg variable. */
 	    if(strcmp(cmd, "help") == 0) {
 		    strcpy(replyMsg, "214 user stat mkdir rmdir dele cd help ls pwd pass \n");
 		}
+
+        /* Handle "user" command: process the username provided by the client. */
 		else if(strcmp(cmd, "user") == 0) {
     			isLoggedIn = NO_USER;
     			userIndex = -1;
-                /* printf("break1\n"); */
+                /* Check if an argument (username) is provided. */
     			if(argument[0] == NULL || strcmp(argument, "") == 0) {
         			strcpy(replyMsg, "501 No username given. Usage: \"user <username>\".\n");
         			userIndex = -1;
     			}else {
         			int i = 0;
 				    /* int numUsers = 4; */
-        			int numUsers = sizeof(userList) / sizeof(*userList);
-                    /*  printf("break2\n"); */
-                    /* printf("Before loop: argument: %s, address: %p\n", argument, (void *)argument); */
-                    /* printf("Before loop: testpass address: %p\n", (void *)testpass); */
-                    char *local_argument = strdup(argument);
+        			int numUsers = sizeof(userList) / sizeof(*userList); /* Calculate the number of users in the userList array. */
+                    char *local_argument = strdup(argument); /*use the strdup() function to create a copy of argument and then use that copy in the loop.*/
+
+                    /* Loop through the userList to find a match for the provided username. */
         			for(; i < numUsers; i++) {
-                        printf("userList[%d]: %s, address: %p\n", i, userList[i], (void *)userList[i]);
-                        printf("local_argument: %s, address: %p\n", local_argument, (void *)local_argument);
-                        printf("Length of userList[i]: %lu, Length of local_argument: %lu\n", strlen(userList[i]), strlen(local_argument));
+                        /*The following three lines where used in debugging*/
+                        /*printf("userList[%d]: %s, address: %p\n", i, userList[i], (void *)userList[i]);*/
+                        /*printf("local_argument: %s, address: %p\n", local_argument, (void *)local_argument);*/
+                        /*printf("Length of userList[i]: %lu, Length of local_argument: %lu\n", strlen(userList[i]), strlen(local_argument));*/
+
+                        /* If a match is found, store the corresponding password and update the userIndex and isLoggedIn variables. */
             			if(strncmp(userList[i], local_argument, strlen(userList[i])) == 0) {
-                            /*strcmp(userList[i], argument) == 0 */
-                            /*printf("After strcmp userList[i]: %s, argument: %s\n", userList[i], argument);*/
-                            /*printf("break4\n");*/
                             strcpy(testpass, passList[i]);
                 			userIndex = i;
                 			isLoggedIn = LOGGED_OUT;
@@ -274,7 +238,9 @@ int main(int argc, char *argv[] )
                 			break;
             			}
         		    }
-                    free(local_argument);
+                    free(local_argument); /*Free up the allocation of memory*/
+
+                    /* If the userIndex is still -1, no matching username was found. */
         		    if(userIndex < 0) {
             	        strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
         		    }
@@ -289,20 +255,21 @@ int main(int argc, char *argv[] )
 	    
 	    /* If no password is provided, the user will be notified of a syntax error */
 
+        /* Handle "pass" command: process the password provided by the client. */
 	    else if(strcmp(cmd, "pass") == 0){
-		printf("Processing pass command - empty argument.\n");
+		printf("Processing pass command - empty argument.\n"); /*If the user does not provide a password as pass, then display the following replymsg that there is no argument*/
 
-		/* The program will inform the user of a syntax error if they fail to provide a password or an "empty" password. */
+		/* Check if a password argument is provided.NOTE: The program will inform the user of a syntax error if they fail to provide a password or an "empty" password. */
 		if(argument == NULL || argument[0] == '\0' || strcmp(argument, "") == 0) {
 			strcpy(replyMsg, "501 Syntax error. Use: \"pass <password>\". \n");
 		}
-		/* If the user fails to send a valid user command, inform them that the command has failed. */
+		/* If no valid "user" command was sent previously, inform the user of a bad command sequence. */
 		else if(isLoggedIn == NO_USER || userIndex < 0){
 			printf("Processing pass command - no user or invalid userIndex.\n");
 			isLoggedIn = LOGGED_IN; 
 			strcpy(replyMsg, "503 Bad sequence of commands. Use \"user <username>\" first.\n");
 		}
-		/* If a user/password combination is matched successfully. It's sent to the isLoggedIn and will send a reply. */
+		/* If the password matches the one for the selected user, set the isLoggedIn status to LOGGED_IN and send a success message. */
 		/* else if(strcmp(passList[userIndex], argument) == 0) { */
         else if(strcmp(testpass, argument) == 0) {
 			printf("Processing pass command - successful login.\n");
@@ -310,17 +277,18 @@ int main(int argc, char *argv[] )
 			strcpy(replyMsg, "230 User logged in, proceed.\n");
 		}
         
-		/* If the user provides an invalid command, error messages are displayed, but the 'userIndex' variable remains unchanged, and the 'isLoggedIn' variable is set to 'LOGGED_OUT' to ensure that the user is logged out of the server. */
+		/* Handle invalid password or unexpected error cases. If the user provides an invalid command, error messages are displayed, but the 'userIndex' variable remains unchanged, and the 'isLoggedIn' variable is set to 'LOGGED_OUT' to ensure that the user is logged out of the server. */
 		else{
 			printf("Processing pass command - invalid command.\n");
 			isLoggedIn = LOGGED_OUT;
             userIndex = -1;
+            /* If userIndex is still valid, inform the user of an invalid password and prompt to retry. */
 			if(userIndex >= 0) {
 				strcpy(replyMsg, "530 Invalid password for ");
 				strcat(replyMsg, userList[userIndex]);
 				strcat(replyMsg, ". Use \"pass\" command to try it again, or \"user\" command to switch to new users.\n");
 			}
-			/* The user will be informed of an error and the system will be shut down, although this is unlikely to happen and is merely a precautionary measure. */
+			/* In case of an unexpected error, inform the user and set the command to "quit" for system shutdown. */
 			else {
 				strcpy(replyMsg, "421 An error occurred. Please contact the system admin.");
 				strcpy(cmd, "quit");
@@ -328,6 +296,7 @@ int main(int argc, char *argv[] )
 			}
 	    }
 
+        /*If the user is logged in then the following if else block will be able to execute*/
         else if(isLoggedIn == LOGGED_IN){
             
 
@@ -342,113 +311,137 @@ int main(int argc, char *argv[] )
             /* checks if the user command is either "mkdir" or "Mkd". If the user command matches either of these strings, then the code checks if the 'argument' variable is empty or not. */
             else if (strcmp(cmd, "mkdir") == 0 || strcmp(cmd, "Mkd") == 0) {
                 if (argument[0] == NULL || strcmp(argument, "") == 0) {
+                    /* If the argument is empty or NULL, inform the user of a syntax error. */
                     strcpy(replyMsg, "501 Syntax error. Use: \"mkdir <directory_path>\".\n");
                 }
+                /* If the user is logged in, proceed to create the directory. */
                 else if (isLoggedIn == LOGGED_IN) {
+                    /* If the command is "mkd", modify the command to "mkdir" before executing. */
                     if (strcmp(cmd, "mkd") == 0) {
-                    strcpy(chgCmd, "mkdir ");
-                    strcat(chgCmd, argument);
+                    strcpy(chgCmd, "mkdir "); /*Helps convert mkd to mkdir using strcpy*/
+                    strcat(chgCmd, argument); /*Helps to convert the argument alongside mkd */
                     status = system(chgCmd);
                 } else {
+                    /* Execute the "mkdir" command as is. */
                     status = system(userCmd);
                 }
                 if (status == 0) {
+                    /* If the status is 0 (successful), inform the user that the directory was created. */
                     strcpy(replyMsg, "257 Created the directory \"");
                     strcat(replyMsg, argument);
                     strcat(replyMsg, "\".\n");
                 } else {
+                    /* If the status is not 0 (failed), inform the user that the directory couldn't be created. */
                     strcpy(replyMsg, "500 Unable to create directory \"");
                     strcat(replyMsg, argument);
                     strcat(replyMsg, "\".\n");
                     }
                 } 
             else {
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
         }
 
-            else if (strcmp(cmd, "rmdir") == 0 || strcmp(cmd, "Mkd") == 0) {
-                    if (argument[0] == NULL || strcmp(argument, "") == 0) {
+            /* Implementing the rmdir command in the system */
+            /* Check if the user command is "rmdir" or "rmd". */
+            else if (strcmp(cmd, "rmdir") == 0 || strcmp(cmd, "rmd") == 0) {
+                /* If the argument is empty or NULL, inform the user of a syntax error. */
+                if (argument[0] == NULL || strcmp(argument, "") == 0) {
                     strcpy(replyMsg, "501 Syntax error. Use: \"rmdir <directory_path>\".\n");
-            }
+                }
+                /* If the user is logged in, proceed to remove the directory. */
                 else if (isLoggedIn == LOGGED_IN) {
+                    /* If the command is "rmd", modify the command to "rmdir" before executing. */
                     if (strcmp(cmd, "rmd") == 0) {
-                        strcpy(chgCmd, "rmdir ");
-                        strcat(chgCmd, argument);
+                        strcpy(chgCmd, "rmdir "); /*Helps convert rmd to rmdir using strcpy*/
+                        strcat(chgCmd, argument); /*Helps to convert the argument alongside rmd */
                         status = system(chgCmd);
                     } else {
+                        /* Execute the "rmdir" command as is. */
                         status = system(userCmd);
                     }
+
+                    /* If the status is 0 (successful), inform the user that the directory was removed. */
                     if (status == 0) {
                         strcpy(replyMsg, "250 Removed the directory \"");
                         strcat(replyMsg, argument);
                         strcat(replyMsg, "\".\n");
                     } else {
+                        /* If the status is not 0 (failed), inform the user that the directory couldn't be removed. */
                         strcpy(replyMsg, "500 Unable to remove \"");
                         strcat(replyMsg, argument);
                         strcat(replyMsg, "\".\n");
                     }
                 } else {
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                     }
             }
 
-            /* Allowing the cd command in the system */
+            /* Implementing the cd command in the system */
             else if(strcmp(cmd, "cd") == 0){
+                /* Check if the user is logged in. */
                 if(isLoggedIn == LOGGED_IN){
-                    /* Home is the login directory for the user who run this program. */
-                    /*argument[0]*/
-                    /* printf("break1\n"); */
-                    /* if (argument == NULL) {
-                        printf("Missing argument for command: %s.\n", cmd);
-                        continue;
-                    } */
+                    /* If the argument is NULL, empty, or not provided, change the directory to the user's HOME directory. */
                     if(argument == NULL || argument[0] == NULL || strcmp(argument, "") == 0){
-                        status = chdir(getenv("HOME"));
-                        char home_dir[] = "HOME directory";
+                        /* If the argument is provided, attempt to change to the specified directory. */
+                        status = chdir(getenv("HOME")); /*if no argument is provided, process that command using get*/
+                        char home_dir[] = "HOME directory"; /*since no argument was provided set it to home directory*/
                         argument = home_dir;
                        /* strcpy(argument, "HOME directory");*/
                     }else{
+                        /* If the argument is provided, attempt to change to the specified directory. */
                         status = chdir(argument);
                     }
-                    /* If the cd command is passed and worked there will be a message that states that it worked. */
+                    /* If the change directory command is successful, inform the user that the working directory has been changed. */
                     if(status == 0){
                         strcpy(replyMsg, "250 Current working directory changed to \"");
                         strcat(replyMsg, argument);
                         strcat(replyMsg, "\".\n");
                     }
                     else{
+                        /* If the change directory command fails, inform the user that the specified directory couldn't be changed to. */
                         strcpy(replyMsg, "500 Unable to change to the specified directory.\n");
-                    } /* If the directory does not exist then pass along that message. */
+                    } 
+                    /* If the directory does not exist then pass along that message. */
                 }
                 else{
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
             }
 
-            /* Allowing the pwd command in the system */
+            /* Implementing the pwd command in the system */
             else if(strcmp(cmd, "pwd") == 0){
-                printf("Entered 'pwd' command block.\n"); /* Testing */
+                /* printf("Entered 'pwd' command block.\n"); */
+                /* Check if the user is logged in. */
                 if(isLoggedIn == LOGGED_IN){
+                    /* If the argument is not NULL, inform the user that the 'pwd' command does not require an argument. */
                     if (argument != NULL) {
                         strcpy(replyMsg, "501 Syntax error: 'pwd' command does not require an argument.\n");
                     } else{
+                        /* Execute the 'pwd' command and save the output to a temporary file. */
                         status = system("pwd > ./temp");
                     }
+                    /* If the 'pwd' command executed successfully, read the temporary file. */
                     if(status == 0){
                         filePtr = fopen("temp", "r");
+                        /* If the temporary file cannot be opened, inform the user of the failure. */
                         if(filePtr == NULL){
                             strcpy(replyMsg, "500 Unable to display current working directory (filePtr missing).\n");
                         }
                         /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
                         else{
+                            /* Read the temporary file and store the data in 'fileData'. */
                             bytesRead = fread(fileData, 1, 4095, filePtr); /* Leave one byte for null-terminator */
-                            /* If the file is empty, something went wrong. Notify the user of the failure. */
+                            /* If the file is empty or couldn't be read, inform the user of the failure. */
                             if(bytesRead <= 0){
                                 strcpy(replyMsg, "500 Unable to display current directory (read error).\n");
                             }
                             /* Read output file. */
                             else{
+                                /* If the file is read successfully, send the user the server response with the current working directory. */
                                 fileData[bytesRead] = '\0'; /* NULL-terminate the file data */
                                 strcpy(replyMsg, "257 ");
                                 strcat(replyMsg, fileData);
@@ -456,9 +449,9 @@ int main(int argc, char *argv[] )
                             } 
                             /* File read successfully. Send the user the server response. */
                         }
+                        /* Clean up the file data and remove it */
                         fclose(filePtr);
                         system("rm ./temp");
-                        /* Clean up the file data */
                     }
                     else{
                         strcpy(replyMsg, "500 Unable to display current directory (can not process command).\n");
@@ -466,35 +459,41 @@ int main(int argc, char *argv[] )
                     /* The output file could not be created. Notify the user that it failed */
                 }
                 else{
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
             }
-            /* Allowing the ls command in the system */
-           else if(strcmp(cmd, "ls") == 0){
+            
+            /* Implementing the ls command in the system */
+            else if(strcmp(cmd, "ls") == 0){
+                /* Check if the user is logged in. */
                 printf("Entered 'ls' command block.\n");
                 if(isLoggedIn == LOGGED_IN){
-                    if (argument != NULL) {
-                        strcpy(replyMsg, "451 Unable to display directory contents (filePtr missing).\n");
+                    /* If the argument is "-l", execute the 'ls -l' command and save the output to a temporary file. */
+                    if (argument != NULL && strcmp(argument, "-l") == 0) {
+                        status = system("ls -l > ./temp"); /* Modify this line to include the "-l" flag */
                     } else{
-                        status = system("ls > ./temp"); /*set status to a temp file to provde ls worked*/
-                        printf("system() status: %d\n", status); /*Print the return value of system()*/
+                        /* Execute the 'ls' command and save the output to a temporary file. */
+                        status = system("ls > ./temp");
                     }
+                    /* If the 'ls' or 'ls -l' command executed successfully, read the temporary file. */
                     if(status == 0){
                         filePtr = fopen("temp", "r");
-                         printf("filePtr: %p\n", (void *)filePtr); /*Print the value of filePtr*/
+                        /* If the temporary file cannot be opened, notify the user that the current directory is empty. */
                         if(filePtr == NULL){
                             strcpy(replyMsg, "The current directory is empty.");
                         }
                         /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
                         else{
-                            bytesRead = fread(fileData, 1, 1023, filePtr); /* Leave one byte for null-terminator */
-                            printf("bytesRead: %ld\n", bytesRead); /**/
-                            /* If the file is empty, something went wrong. Notify the user of the failure. */
+                            /* Read the temporary file and store the data in 'fileData'. */
+                            bytesRead = fread(fileData, 1, 4095, filePtr); /* Leave one byte for null-terminator */
+                            /* If the file is empty or couldn't be read, inform the user of the failure. */
                             if(bytesRead <= 0){
                                 strcpy(replyMsg, "500 Unable to display current directory (read error).\n");
                             }
                             /* Read output file. */
                             else{
+                                /* If the file is read successfully, send the user the server response with the directory contents. */
                                 fileData[bytesRead] = '\0'; /* NULL-terminate the file data */
                                 strcpy(replyMsg, "257 ");
                                 strcat(replyMsg, fileData);
@@ -502,33 +501,41 @@ int main(int argc, char *argv[] )
                             } 
                             /* File read successfully. Send the user the server response. */
                         }
+                        /* Clean up the file data and remove the temp file */
                         fclose(filePtr);
                         system("rm ./temp");
-                        /* Clean up the file data */
                     }
                     else{
+                        /* If the 'ls' or 'ls -l' command could not be executed, inform the user of the failure. */
                         strcpy(replyMsg, "451 Unable to display directory contents (can not process command).\n");
                     }
-                    /* The output file could not be created. Notify the user that it failed */
                 }
                 else{
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
             }
-            /* Allowing the dele command in the system */
+            
+            /* Implementing the dele command in the system */
             else if(strcmp(cmd, "dele") == 0){
+                /* Check if the argument is empty or not. */
                 if(argument[0] == NULL || strcmp(argument, "") == 0){
                         strcpy(replyMsg,"501 Syntax error. Use: \"dele <file_path>\".\n");
                 }
+                /* Check if the user is logged in. */
                 else if(isLoggedIn == LOGGED_IN){
+                    /* Construct the 'rm' command to remove the specified file. */
                     strcpy(chgCmd, "rm ");
                     strcat(chgCmd, argument);
+                    /* Execute the 'rm' command and check its status. */
                     status = system(chgCmd);
+                    /* If the 'rm' command executed successfully, inform the user that the file has been removed. */
                     if(status == 0){
                         strcpy(replyMsg, "250 Removed the file \"");
                         strcat(replyMsg, argument);
                         strcat(replyMsg, "\".\n");
                     }
+                    /* If the 'rm' command could not be executed, inform the user that the file could not be removed. */
                     else{
                         strcpy(replyMsg, "500 Unable to remove \"");
                         strcat(replyMsg, argument);
@@ -536,11 +543,12 @@ int main(int argc, char *argv[] )
                     }
                 }
                 else{
+                    /* If the user is not logged in, inform them that they need to log in first. */
                     strcpy(replyMsg, "530 Not logged in.\n");
                 }
             }
             
-            /* Allowing the send command in the system */
+            /* Implementing the send command in the system */
             else if(strcmp(cmd, "send") == 0){
             
                 /* Attempt a data connection even in the presence of errors to avoid the client from continuously listening. */
@@ -590,7 +598,7 @@ int main(int argc, char *argv[] )
                 close(dcSocket); /* Close the data connection socket regardless of any errors that may have occurred. */
             }
             
-            /* Allowing the recv command in the system */
+            /* Implementing the recv command in the system */
             else if(strcmp(cmd, "recv") == 0){
                 /* Try to establish a data connection even if there is an error to prevent the client from waiting indefinitely. */
                 printf("Calling clntConnect to connect to the client.\n");
@@ -630,43 +638,44 @@ int main(int argc, char *argv[] )
                         fclose(filePtr); /* Close the file, regardless of whether it was successfully sent or not. */
                     }
                     else{
+                        /* If the user is not logged in, discard any message received on the dcSocket. */
                         strcpy(replyMsg, "530 Not logged in. Closing data connection.\n");
                     }
                 }
                 close(dcSocket); /* Close the data connection regardless of whether there was an error or not. */
-                
-                /*For debugging*/
-               /* status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
-                if (status < 0) {
-                    perror("Error sending message: ");
-                    close(ccSocket);
-                    break; // break out of the while loop
-                } */
             }
+            
             /* Send a response to the quit command. */
 		    else if(strcmp(cmd, "quit") == 0){
+            /* Inform the user that the service is closing data and control connections. */
 			strcpy(replyMsg, "221 Service closing data and control connections.\n");
 
+            /* Print a message indicating that the data connection socket is being closed. */
 			printf("Closing data connection socket.\n");
 			close (dcSocket);  /* Close server data connection socket */
 
+            /* Print a message indicating that the control connection socket is being closed. */
 			printf("Closing control connection socket.\n");
 			close (ccSocket);  /* Close client control connection socket */
 
+            /* Print a message indicating that the listen socket is being closed. */
 			printf("Closing listen socket.\n");
 			close(listenSocket);  /*close listen socket */
 
+            /* Print a message indicating that the server FTP main process is exiting. */
 			printf("Exiting from server ftp main. \n");
 
+            /* Return the current status. */
 			return (status);
 		    }
 
+            /* The input command is invalid and cannot be recognized. This is when the user is logged in. */
             else
 			    strcpy(replyMsg, "502 Command not implemented. Use \"help\" for a list of valid commands.\n");
 		    
         }
 		
-		/* The input command is invalid and cannot be recognized. */
+		/* The input command is invalid and cannot be recognized. This is when the user is NOT logged in */
 		else{
 			strcpy(replyMsg, "502 Command not implemented. Use \"help\" for a list of valid commands.\n");
 		}
@@ -678,16 +687,18 @@ int main(int argc, char *argv[] )
 	     * each command received in this implementation.
 	     */    
 
-        /* printf("replymessage3: %s", replyMsg); */
-        /* printf("ccSocket value before calling sendMessage(): %d\n", ccSocket); For debugging*/
-	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);	/* Added 1 to include NULL character in */
-		/* the reply string strlen does not count NULL character */
+        /* Send a reply message to the client using the control connection socket. */
+        /* Add 1 to the message length to include the NULL character, as strlen does not count the NULL character. */
+	    status=sendMessage(ccSocket,replyMsg,strlen(replyMsg) + 1);
+		
+        /* Check if the status of the sendMessage function is less than 0 (indicating an error). */
 	    if(status < 0)
 	    {	
-		break;  /* exit while loop */
+		break;  /* If there's an error, exit the while loop. */
 	    }
 	}	
 	while(1);
+    /* Free the memory allocated for the 'cmd' and 'argument' variables. */
 	free(cmd);
     free(argument);
 }
@@ -923,3 +934,4 @@ int receiveMessage (
 
 	return (OK);
 }
+
