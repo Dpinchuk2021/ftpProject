@@ -46,7 +46,7 @@ char chgCmd[1024];      /* Utilized for converting a command into a UNIX-compati
 char *cmd;   		    /* FTP command extracted from userCmd, without an argument. */
 char *argument;         /* Argument extracted from userCmd, without the FTP command. */
 char replyMsg[1024];    /* Buffer for sending response messages to the client */ /*4096*/
-char ftpData[1024];		/* Buffer for sending and receiving file data to and from the client which is set to 4 bytes */ /*4096*/
+char ftpData[4096];		/* Buffer for sending and receiving file data to and from the client which is set to 4 bytes */ /*4096*/
 int  ftpBytes      = 0; /* Utilized for tallying the total bytes transferred during FTP */
 int  fileBytesRead = 0; /* The number of bytes read using fread */
 int  bytesReceived = 0; /* The count of bytes received in a single FTP message. */
@@ -163,17 +163,17 @@ int main(int argc, char *argv[] )
  	    status=receiveMessage(ccSocket, userCmd, sizeof(userCmd), &msgSize); 
 	    if(status < 0)
 	    {
-		/* printf("break3\n"); */	
-		printf("Receive message failed. Closing control connection \n"); /**/
-		printf("Server ftp is terminating.\n"); /**/
-		break; /*Break out of the if statement so there is no infinite loop*/
+		    /* printf("break3\n"); */	
+		    printf("Receive message failed. Closing control connection \n"); /**/
+		    printf("Server ftp is terminating.\n"); /**/
+		    break; /*Break out of the if statement so there is no infinite loop*/
 	    }
 	    
 	    /* printf("break4\n"); */	
 	    /* Debugging Purposes */
-	    int bytesSent;
-    	char replyMsg[] = "Message received.\n";
-       /* status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
+	    /* int bytesSent; */
+        /*char replyMsg[] = "Message received.\n";*/
+        /* status = sendMessage(ccSocket, replyMsg, strlen(replyMsg) + 1);
         if (status < 0) {
             perror("Error sending message: ");
             close(ccSocket);
@@ -234,9 +234,9 @@ int main(int argc, char *argv[] )
 
 	    /* Output a message indicating that the server has received the command */
 
-	    printf("Received command: %s.\n", userCmd); /**/
-	    printf("cmd: %s. \n", cmd); /**/
-	    printf("arg: %s.\n", argument); /**/
+	    printf("Received command: %s.\n", userCmd); /*prints the received command stored in the variable userCmd as a string*/
+	    printf("cmd: %s. \n", cmd); /*prints the parsed command stored in the variable cmd as a string*/
+	    printf("arg: %s.\n", argument); /*prints the parsed argument(s) stored in the variable argument as a string*/
 
 	    /* The initial conditional statement to assist with handling the command in the server. The beginning of 1 out of 13 of these commands. */
 	    /* Establish the user command if the user is authenticated/authorized*/   
@@ -247,25 +247,34 @@ int main(int argc, char *argv[] )
 		else if(strcmp(cmd, "user") == 0) {
     			isLoggedIn = NO_USER;
     			userIndex = -1;
-
+                /* printf("break1\n"); */
     			if(argument[0] == NULL || strcmp(argument, "") == 0) {
         			strcpy(replyMsg, "501 No username given. Usage: \"user <username>\".\n");
         			userIndex = -1;
     			}else {
         			int i = 0;
-				    int numUsers = 4;
-        			/* int numUsers = sizeof(userList) / sizeof(*userList); */
+				    /* int numUsers = 4; */
+        			int numUsers = sizeof(userList) / sizeof(*userList);
+                    /*  printf("break2\n"); */
+                    /* printf("Before loop: argument: %s, address: %p\n", argument, (void *)argument); */
+                    /* printf("Before loop: testpass address: %p\n", (void *)testpass); */
+                    char *local_argument = strdup(argument);
         			for(; i < numUsers; i++) {
-                        printf("%s \n",(userList[i]));
-                        printf("%s \n",(passList[i])); /*Remove this when its fully done*/
-            			if(strcmp(userList[i], argument) == 0) {
-                            strcpy(testpass, passList[i]); /* Fill this in last */
+                        printf("userList[%d]: %s, address: %p\n", i, userList[i], (void *)userList[i]);
+                        printf("local_argument: %s, address: %p\n", local_argument, (void *)local_argument);
+                        printf("Length of userList[i]: %lu, Length of local_argument: %lu\n", strlen(userList[i]), strlen(local_argument));
+            			if(strncmp(userList[i], local_argument, strlen(userList[i])) == 0) {
+                            /*strcmp(userList[i], argument) == 0 */
+                            /*printf("After strcmp userList[i]: %s, argument: %s\n", userList[i], argument);*/
+                            /*printf("break4\n");*/
+                            strcpy(testpass, passList[i]);
                 			userIndex = i;
                 			isLoggedIn = LOGGED_OUT;
                 			strcpy(replyMsg, "331 User name good, need password.\n");
                 			break;
             			}
         		    }
+                    free(local_argument);
         		    if(userIndex < 0) {
             	        strcpy(replyMsg, "530 Invalid username. Not logged in. \n");
         		    }
@@ -317,7 +326,6 @@ int main(int argc, char *argv[] )
 				strcpy(cmd, "quit");
 				}
 			}
-           /*printf("break1");*/
 	    }
 
         else if(isLoggedIn == LOGGED_IN){
@@ -463,21 +471,24 @@ int main(int argc, char *argv[] )
             }
             /* Allowing the ls command in the system */
            else if(strcmp(cmd, "ls") == 0){
-                printf("Entered 'ls' command block.\n"); /* Testing */
+                printf("Entered 'ls' command block.\n");
                 if(isLoggedIn == LOGGED_IN){
                     if (argument != NULL) {
                         strcpy(replyMsg, "451 Unable to display directory contents (filePtr missing).\n");
                     } else{
-                        status = system("ls > ./temp"); /*Need to add ls -l later*/
+                        status = system("ls > ./temp"); /*set status to a temp file to provde ls worked*/
+                        printf("system() status: %d\n", status); /*Print the return value of system()*/
                     }
                     if(status == 0){
                         filePtr = fopen("temp", "r");
+                         printf("filePtr: %p\n", (void *)filePtr); /*Print the value of filePtr*/
                         if(filePtr == NULL){
                             strcpy(replyMsg, "The current directory is empty.");
                         }
                         /* If the file doesn't exist or couldn't be opened, notify the user of the failure. */
                         else{
                             bytesRead = fread(fileData, 1, 1023, filePtr); /* Leave one byte for null-terminator */
+                            printf("bytesRead: %ld\n", bytesRead); /**/
                             /* If the file is empty, something went wrong. Notify the user of the failure. */
                             if(bytesRead <= 0){
                                 strcpy(replyMsg, "500 Unable to display current directory (read error).\n");
@@ -677,8 +688,8 @@ int main(int argc, char *argv[] )
 	    }
 	}	
 	while(1);
-	/* free(cmd); */
-    /* free(argument); */
+	free(cmd);
+    free(argument);
 }
 
 
@@ -912,5 +923,4 @@ int receiveMessage (
 
 	return (OK);
 }
-
 
